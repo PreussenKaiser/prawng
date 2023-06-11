@@ -1,8 +1,8 @@
-use sdl2::pixels::Color;
+use sdl2::{pixels::Color, event::Event, keyboard::Keycode};
 
 const TITLE: &str = "PRAWNG";
-const WIDTH: u32 = 128;
-const HEIGHT: u32 = 128;
+const WIDTH: u32 = 800;
+const HEIGHT: u32 = 600;
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -25,6 +25,19 @@ fn main() -> Result<(), String> {
 
     canvas.clear();
     canvas.present();
+
+    'running: loop {
+        for event in sdl_context.event_pump()?.poll_iter() {
+            match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Option::Some(Keycode::Escape),
+                    ..
+                } => break 'running,
+                _ => {}
+            }
+        }
+    }
 
     Ok(())
 }
