@@ -20,11 +20,11 @@ fn main() -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    canvas.set_draw_color(Color::WHITE);
-
     let mut player_position = WINDOW_HEIGHT / 2;
     
     'running: loop {
+        canvas.set_draw_color(Color::WHITE);
+
         for event in sdl_context.event_pump()?.poll_iter() {
             match event {
                 Event::Quit { .. } | Event::KeyDown {
@@ -37,6 +37,13 @@ fn main() -> Result<(), String> {
                     ..
                 } => { 
                     player_position += 8;
+                },
+
+                Event::KeyDown { 
+                    keycode: Option::Some(Keycode::Up) | Option::Some(Keycode::W),
+                    ..
+                } => {
+                    player_position -= 8;
                 }
                 
                 _ => {}
@@ -44,9 +51,12 @@ fn main() -> Result<(), String> {
         }
         
         draw_discriminator(&mut canvas)?;
-        draw_rectangle(&mut canvas, Point::new(WINDOW_WIDTH as i32 - 32, player_position as i32))?;
-        
+        draw_rectangle(&mut canvas, Point::new(WINDOW_WIDTH as i32 - 32, player_position as i32))?;        
+    
         canvas.present();
+
+        canvas.set_draw_color(Color::BLACK);
+        canvas.clear();
     }
 
     Ok(())
