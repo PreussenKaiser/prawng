@@ -5,12 +5,11 @@ use crate::WINDOW_HEIGHT;
 #[derive(Clone, Copy)]
 pub struct Paddle {
     position: Point,
-    is_player: bool, // Tech debt?
 }
 
 impl Paddle {
-    pub fn new(position: Point, is_player: bool) -> Paddle {
-        return Paddle { position, is_player, }
+    pub fn new(position: Point) -> Paddle {
+        return Paddle { position }
     }
 
     pub fn get_position(self) -> Point {
