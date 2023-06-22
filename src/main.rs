@@ -1,7 +1,13 @@
-use draw::{constants::{WINDOW_WIDTH, WINDOW_HEIGHT, TITLE}, game_objects::{draw_rectangle, draw_discriminator}};
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Point};
+use game::Game;
+use renderer::Renderer;
+use sdl2::{event::Event, keyboard::Keycode, rect::Point};
 
-mod draw;
+mod game;
+mod renderer;
+
+const TITLE: &str = "PRAWNG";
+const WINDOW_WIDTH: u32 = 800;
+const WINDOW_HEIGHT: u32 = 600;
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -13,50 +19,29 @@ fn main() -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let mut canvas = window
-        .into_canvas()
-        .target_texture()
-        .present_vsync()
-        .build()
-        .map_err(|e| e.to_string())?;
+    let mut renderer = Renderer::new(window)?;
+    let mut game = Game::new();
 
-    let mut player_position = WINDOW_HEIGHT / 2;
-    
+    let mut event_pump = sdl_context.event_pump()?;
+
     'running: loop {
-        canvas.set_draw_color(Color::WHITE);
-
-        for event in sdl_context.event_pump()?.poll_iter() {
+        for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } | Event::KeyDown {
-                    keycode: Option::Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-                
-                Event::KeyDown {
-                    keycode: Option::Some(Keycode::Down) | Option::Some(Keycode::S),
-                    ..
-                } => { 
-                    player_position += 8;
-                },
-
-                Event::KeyDown { 
-                    keycode: Option::Some(Keycode::Up) | Option::Some(Keycode::W),
-                    ..
-                } => {
-                    player_position -= 8;
+                Event::Quit { .. } => break 'running,
+                Event::KeyDown { keycode: Some(keycoode), .. } => {
+                    let player_pos = game.player1.get_position();
+                    
+                    match keycoode {
+                        Keycode::Up => game.player1.move_position(Point::new(player_pos.x, player_pos.y - 8)),
+                        Keycode::Down => game.player1.move_position(Point::new(player_pos.x, player_pos.y + 8)),
+                        _ => {}
+                    }
                 }
-                
                 _ => {}
             }
         }
-        
-        draw_discriminator(&mut canvas)?;
-        draw_rectangle(&mut canvas, Point::new(WINDOW_WIDTH as i32 - 32, player_position as i32))?;        
-    
-        canvas.present();
 
-        canvas.set_draw_color(Color::BLACK);
-        canvas.clear();
+        renderer.draw(&game)?;
     }
 
     Ok(())
