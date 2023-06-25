@@ -1,19 +1,19 @@
-use sdl2::rect::Point;
+use sdl2::rect::{Point, Rect};
 
 use crate::WINDOW_HEIGHT;
 
 #[derive(Clone, Copy)]
 pub struct Paddle {
-    position: Point,
+    rect: Rect,
 }
 
 impl Paddle {
-    pub fn new(position: Point) -> Paddle {
-        return Paddle { position }
+    pub fn new(rect: Rect) -> Paddle {
+        return Paddle { rect }
     }
 
-    pub fn get_position(self) -> Point {
-        return self.position;
+    pub fn rect(self) -> Rect {
+        return self.rect;
     }
 
     pub fn move_position(&mut self, position: Point) {
@@ -23,54 +23,46 @@ impl Paddle {
             return;
         }
 
-        self.position = position;
+        self.rect.set_x(position.x());
+        self.rect.set_y(position.y());
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use sdl2::rect::Point;
-    use crate::game::paddle::Paddle;
+    use sdl2::rect::{Point, Rect};
+    use crate::{game::paddle::Paddle, position::Position};
 
     #[test]
     fn cannot_move_above() {
-        let original_pos = Point::new(400, 300);
         let new_pos = Point::new(400, 600);
-        let mut paddle = Paddle::new(original_pos);
+        let mut paddle = Paddle::new(Rect::new(400, 300, 0, 0));
 
         paddle.move_position(new_pos);
+        let cur_pos = paddle.rect().point();
 
-        assert_eq!(
-            original_pos,
-            paddle.get_position()
-        );
+        assert_ne!(new_pos, cur_pos);
     }
 
     #[test]
     fn can_move_within_bounds() {
-        let original_pos = Point::new(400, 300);
         let new_pos = Point::new(400, 308);
-        let mut paddle = Paddle::new(original_pos);
+        let mut paddle = Paddle::new(Rect::new(400, 300, 0, 0));
 
         paddle.move_position(new_pos);
+        let cur_pos = paddle.rect().point();
 
-        assert_ne!(
-            original_pos,
-            paddle.get_position()
-        );
+        assert_eq!(new_pos, cur_pos);
     }
 
     #[test]
     fn cannot_move_below() {
-        let original_pos = Point::new(400, 300);
         let new_pos = Point::new(400, 0);
-        let mut paddle = Paddle::new(original_pos);
+        let mut paddle = Paddle::new(Rect::new(400, 300, 0, 0));
 
         paddle.move_position(new_pos);
+        let cur_pos = paddle.rect().point();
 
-        assert_eq!(
-            original_pos,
-            paddle.get_position()
-        );
+        assert_ne!(new_pos, cur_pos);
     }
 }

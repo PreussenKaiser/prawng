@@ -1,6 +1,6 @@
 use sdl2::{video::Window, render::Canvas, rect::{Point, Rect}, pixels::Color};
 
-use crate::game::{Game, ball::Ball};
+use crate::{game::{Game, ball::Ball}, position::Position};
 
 pub struct Renderer {
     canvas: Canvas<Window>,
@@ -24,7 +24,8 @@ impl Renderer {
         self.draw_discriminator()?;
 
         self.canvas.set_draw_color(Color::WHITE);
-        self.draw_player(game.player1.get_position())?;
+        self.draw_player(game.player1.rect().point())?;
+        self.draw_player(game.player2.rect().point())?;
         self.draw_ball(game.ball)?;
 
         self.canvas.present();
@@ -50,17 +51,7 @@ impl Renderer {
     }
 
     fn draw_ball(&mut self, ball: Ball) -> Result<(), String> {
-        let ball_pos = ball.get_position();
-        let ball_size = ball.get_size();
-
-        let rect = Rect::new(
-            ball_pos.x,
-            ball_pos.y,
-            ball_size as u32,
-            ball_size as u32
-        );
-
-        self.canvas.fill_rect(rect)?;
+        self.canvas.fill_rect(ball.rect())?;
 
         Ok(())
     }
